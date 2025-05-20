@@ -48,7 +48,23 @@ Functional Simulation:
 
 
 ## Creating Source Code:
+always @(posedge clk or posedge reset) begin
+    if (reset) 
+    begin
+        count <= 4'b0000;
+    end
 
+    else if (enable)
+    begin
+        if (up_down)
+        begin
+            count <= count + 1'b1;
+        end
+        else begin
+            count <= count - 1'b1;
+        end
+    end
+end
 	In the Terminal, type gedit <filename>.v or <filename>.vhdl depending on the HDL Language you are to use (ex: 4b_up_downCount.v).
 
 	A Blank Document opens up into which the following source code can be typed down.
@@ -62,7 +78,65 @@ Functional Simulation:
 	Use Save option or Ctrl+S to save the code or click on the save option from the top most right corner and close the text file.
 
 ## Creating Test bench:
+reg clk;
+reg reset;
+reg up_down;
+reg enable;
+wire [3:0] count;
 
+
+up_down_counter uut(
+    .clk(clk),
+    .reset(reset),
+    .up_down(up_down),
+    .enable(enable),
+    .count(count)
+);
+
+
+initial begin
+    clk = 0;
+    forever #5 clk = ~clk;  
+end
+
+
+initial begin
+
+    reset = 1;
+    up_down = 1;
+    enable = 0;
+    
+
+    #20 reset = 0;
+    
+
+    #10 enable = 1;
+    #200;  
+    
+
+    up_down = 0;
+    #200;  
+    
+
+    enable = 0;
+    #50;
+    
+
+    reset = 1;
+    #20 reset = 0;
+    
+
+    #50;
+    
+
+    $finish;
+end
+
+
+initial begin
+    $monitor("Time: %t, Reset: %b, Up/Down: %b, Enable: %b, Count: %b", 
+             $time, reset, up_down, enable, count);
+end
 	Similarly, create your test bench using gedit <filename_tb>.v or <filename_tb>.vhdl to open a new blank document (4bitup_down_count_tb.v).
 
 ### Test-bench code for 4-Bit Up-Down Counter:
